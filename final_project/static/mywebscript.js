@@ -14,10 +14,10 @@ let RunSentimentAnalysis = () => {
         .then((response) => response.json().then((data) => ({ status: response.status, data })))
         .then(({ status, data }) => {
             if (status !== 200) {
-                responseContainer.textContent = `Error: ${data.error || 'Unable to analyze text.'}`;
+                responseContainer.textContent = data.error || 'Unable to analyze text.';
                 return;
             }
-            responseContainer.textContent = JSON.stringify(data, null, 2);
+            responseContainer.textContent = data.result;
         })
         .catch((error) => {
             responseContainer.textContent = `Network error: ${error.message}`;
