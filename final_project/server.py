@@ -13,7 +13,7 @@ app = Flask(__name__, template_folder="templates", static_folder="static")
 @app.route("/")
 def index():
     """Render the home page with the emotion detection interface.
-    
+
     Returns:
         str: Rendered HTML template for the index page.
     """
@@ -23,14 +23,15 @@ def index():
 @app.route("/emotionDetector", methods=["POST"])
 def emotion_detector_route():
     """Process a POST request to analyze emotion from text.
-    
+
     Expects a JSON payload with a 'text' field containing the text to analyze.
-    
+    Handles blank input by checking if dominant_emotion is None.
+
     Returns:
         Response: JSON response containing emotion scores and dominant emotion,
                   or error message with appropriate HTTP status code.
                   - 200: Success with emotion analysis result
-                  - 400: Invalid request or input error
+                  - 400: Invalid request, input error, or blank text
                   - 502: API connection error
     """
     payload = request.get_json(silent=True)
@@ -40,6 +41,11 @@ def emotion_detector_route():
     text_to_analyze = payload["text"]
     try:
         result = emotion_detector(text_to_analyze)
+
+        # Handle blank input: if dominant_emotion is None, return error
+        if result.get("dominant_emotion") is None:
+            return jsonify({"error": "Invalid text. Please provide a non-empty string."}), 400
+
         return jsonify(result)
     except TypeError as exc:
         return jsonify({"error": str(exc)}), 400
